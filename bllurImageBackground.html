@@ -1,0 +1,90 @@
+<html>
+
+<head>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.2"></script>
+  <!-- Load BodyPix -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.0"></script>
+</head>
+<style>
+  canvas {
+    border: 2px solid yellowgreen;
+  }
+</style>
+
+<body>
+  <img id='image' src='./backgrounds/person.jpeg ' />
+  <canvas height="400" width="400" id="canvas"></canvas>
+  <canvas id="c2"></canvas>
+</body>
+<!-- Place your code in the script tag below. You can also use an external .js file -->
+<script>
+  var canvas = document.getElementById('canvas');
+  var ctx = canvas.getContext('2d');
+
+  var c2 = document.getElementById('c2');
+  var ctx2 = c2.getContext('2d');
+
+
+  var outputStride = 16;
+  var segmentationThreshold = 0.5;
+  var imageElement = document.getElementById('image');
+
+  bodyPix.load().then(function (net) {
+
+    // return net.estimatePersonSegmentation(imageElement, outputStride, segmentationThreshold); 
+    
+    return net.segmentPerson(imageElement, {
+      flipHorizontal: false,
+      internalResolution: 'medium',
+      segmentationThreshold: 0.7
+    });
+
+
+  }).then(function (segmentation) {
+    console.log(segmentation);
+
+    // 128, 128, 128, 0.5
+    const foregroundColor = { r: 0, g: 0, b: 0, a: 0 };
+    const backgroundColor = { r: 0, g: 0, b: 0, a: 0 };
+    // const backgroundDarkeningMask = bodyPix.toMask(segmentation, foregroundColor, backgroundColor,false);
+    // console.log(backgroundDarkeningMask);
+    const opacity = 0.5;
+    const maskBlurAmount = 3;
+    const flipHorizontal = false;
+
+    const backgroundBlurAmount = 20;
+const edgeBlurAmount = 3;
+// const flipHorizontal = true;
+
+    // const canvas = document.getElementById('canvas');
+    // bodyPix.drawMask(canvas, imageElement, backgroundDarkeningMask, opacity, maskBlurAmount, flipHorizontal);
+ 
+    bodyPix.drawBokehEffect( canvas, imageElement, segmentation, backgroundBlurAmount, edgeBlurAmount, flipHorizontal);
+    
+    
+    // ctx2.globalCompositeOperation = 'destination-over';
+    // ctx2.putImageData(backgroundDarkeningMask, 0, 0);
+    // ctx2.globalCompositeOperation = 'source-in';
+    // ctx2.drawImage(backgroundDarkeningMask, 0, 0, 640, 480);
+    
+
+    
+    //**************
+
+    var imageData = ctx.getImageData(0, 0,imageElement.width,imageElement.height);
+    var pixel = imageData.data;
+    for (var p = 0; p < pixel.length; p += 4) {
+      if (segmentation.data[p / 4] == 0) {
+        pixel[p + 3] = 0;
+      }
+    }
+
+    // ctx2.imageSmoothingEnabled = true;
+    ctx2.putImageData(imageData, 0, 0);
+
+  })
+</script>
+
+</html>

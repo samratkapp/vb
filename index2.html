@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<html lang="en">
+
+<head>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    canvas {
+      margin: 20px;
+      border: 2px solid gray;
+      width: 500px;
+      height: 200px
+    }
+  </style>
+</head>
+
+<body>
+
+  <select id="videoSource"></select>
+  <button id="playvid" class="btn btn-primary btn-sm">Play</button>
+  <button id="stopvid" class="btn btn-primary btn-sm">Stop</button>
+  <br>
+  <video></video>
+
+  <canvas id="canvas"></canvas>
+  <canvas id="c2"></canvas>
+  <script>
+    var canvas = document.getElementById('canvas');
+    var ctx = canvas.getContext('2d');
+
+    var c2 = document.getElementById('c2');
+    var ctx2 =  c2.getContext('2d');
+  </script>
+
+  <script>
+    var video = document.querySelector('video');
+    function getdevices() {
+      navigator.mediaDevices.enumerateDevices().then(function (devices) {
+        console.log(devices);
+        for (var i = 0; i < devices.length; i++) {
+          var device = devices[i];
+          if (device.kind === 'videoinput') {
+            var option = document.createElement('option');
+            option.value = device.deviceId;
+            option.text = device.label || 'camera ' + (i + 1);
+            document.querySelector('select#videoSource').appendChild(option);
+          }
+        };
+      });
+    }
+
+    getdevices();
+
+    playvid.onclick = function () {
+
+      var constraints = {
+        audio: true,
+        video: {
+
+          width: 200, height: 200,
+          deviceId: document.querySelector('select#videoSource').value
+        }
+      };
+
+      navigator.mediaDevices.getUserMedia(constraints)
+        .then(function (mediaStream) {
+          console.log('mediaStream', mediaStream);
+          var video = document.querySelector('video');
+          window.localStream = mediaStream;
+          video.srcObject = mediaStream;
+ 
+          video.onloadedmetadata = function (e) {
+            video.play();
+          };
+          localStream.getTracks().forEach((track) => {
+            console.log('Track', track);
+          })
+        })
+        .catch(function (err) { console.log(err.name + ": " + err.message); }); // a
+
+        canvasInterval();
+    }
+
+    canvasInterval = window.setInterval(() => {
+     ctx.drawImage(video,0,0,200,200);
+     const frame =  ctx.getImageData(0, 0, 400,400);
+    const length = frame.data.length;
+    const data = frame.data;
+
+    for (let i = 0; i < length; i += 4) {
+      const red = data[i + 0];
+      const green = data[i + 1];
+      const blue = data[i + 2];
+      if (green > 100 && red > 100 && blue < 43) {
+        data[i + 3] = 0;
+      }
+    }
+    ctx2.drawImage(frame, 0, 0);
+    // ctx2.putImageData(frame, 0, 0);
+    }, 1000 / 60);
+
+
+    stopvid.onclick = function () {
+      localStream.getTracks().forEach((track) => {
+        track.stop();
+      })
+    }
+
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Virtual Background Example</title>
+  <link href="./dist/build/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+  <link rel="stylesheet" href="index.css">
+<style>
+  #canvas {
+      margin: 20px;
+      border: 2px solid gray;
+      width: 250px;
+      height: 220px;
+    }
+
+</style>
+</head>
+<script>
+  navigator.mediaDevices.enumerateDevices().then(function (devices) {
+    console.log(devices);
+    for (var i = 0; i < devices.length; i++) {
+      var device = devices[i];
+      if (device.kind === 'videoinput') {
+        var option = document.createElement('option');
+        option.value = device.deviceId;
+        option.text = device.label || 'camera ' + (i + 1);
+        document.querySelector('select#videoSource').appendChild(option);
+      }
+    };
+  });
+
+  
+</script>
+
+<body>
+  <div class="container-fluid">
+    <div class="row thin-gutters align">
+      <div class="col-sm-9">
+        <div class="card video-container">
+          <div class="card-block">
+            <h4 class="card-title">Local Video</h4>
+            <button id="playvid" onclick="playvid()" class="btn btn-primary btn-sm">Play</button>
+            <button id="stopvid" class="btn btn-primary btn-sm">Stop</button>
+            <select id="videoSource"></select>
+<br>
+            <!-- <video height="600px" width="600px"></video> -->
+             
+            <video id="video-input"></video>
+            <div class="overlay" id="overlay"></div>
+
+          </div>
+
+        </div>
+      </div>
+      <div class="col-sm-3 left-form">
+
+        <div class="card">
+          <div class="card-block">
+           
+            <form id="virtualBackground-Form">
+              <!-- <div class="form-group">
+                    <label for="maskBlurRadius">Mask Blur Radius</label>
+                    <input class="form-control" type="number" min="0" oninput="validity.valid||(value='');" id="maskBlurRadius" value="5" ></input>
+                  </div> -->
+              <div class="form-group">
+                <label for="backgroundImage">Background Image</label>
+                <select class="form-control selectpicker" id="backgroundImage">
+                  <option value="back1">Podium1</option>
+                  <option value="back2">Podium2</option>
+                  <option value="back3">Podium3</option>
+                  <option value="back4">Podium4</option>
+                  <option value="back5">Transparant</option>
+                </select>
+              </div>
+
+            </form>
+            <button id="virtualBackground-Apply" class="btn btn-primary btn-sm">Apply</button>
+            <button id="remove-processor" class="btn btn-primary btn-sm ">Remove </button>
+             
+      
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel"
+    aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="errorModalLabel">Error</h5>
+        </div>
+        <div class="modal-body">
+          ...
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="http://localhost:9080/dist//build/twilio-video.min.js"></script>
+  <script src="http://localhost:9080/dist//build/twilio-video-processors.js"></script>
+  <script src="http://localhost:9080/dist//build/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+   
+  <script src="index.js"></script>
+ <script>
+   var width=`80%`;
+   var height=`80%`;
+
+   document.getElementById("video-input").style.width = width;
+   document.getElementById("video-input").style.height = height;
+
+// overlay
+height=`30%`;
+   document.getElementById("overlay").style.width = width;
+   document.getElementById("overlay").style.height = height;
+ </script>
+</body>
+
+</html>

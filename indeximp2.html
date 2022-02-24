@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<html lang="en">
+
+<head>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.0"></script>
+
+
+  <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.0"></script> -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@1.0.0"></script> -->
+  <style>
+    #canvas {
+      margin: 20px;
+      border: 2px solid gray;
+      width: 250px;
+      height: 220px;
+      display: none;
+    }
+
+    #c2 {
+      margin: 20px;
+      border: 2px solid gray;
+      width: 550px;
+      height: 520px;
+      background-image: url(./backgrounds/back4.jpg);
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+
+    video {
+      width: 350px;
+      height: 350px;
+      display: none;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <body>
+    <video></video>
+
+    <canvas id="canvas"></canvas>
+    <canvas id="c2"></canvas>
+
+    <p>
+      <select id="videoSource"></select>
+
+      <button id="play" onclick="play()">
+        PLAY
+      </button>
+
+      <button id="both">
+        STOP
+      </button>
+      <button id="updateCanvas">
+        updateCanvas
+      </button>
+      <select id="scaleCanvas">
+        <option>1</option>
+        <option>2</option>
+        <option>3</option>
+        <option>4</option>
+        <option>5</option>
+        <option>6</option>
+        <option>7</option>
+        <option>8</option>
+        <option>9</option>
+        <option>10</option>
+      </select>
+
+    </p>
+
+  </body>
+
+</body>
+<script>
+
+  // var imageElement = document.getElementById('image');
+  var canvas = document.getElementById('canvas');
+  var ctx = canvas.getContext('2d');
+
+  var c2 = document.getElementById('c2');
+  var ctx2 = c2.getContext('2d');
+
+  var video = document.querySelector('video');
+
+  var scale = 0.45;
+
+  var width = ctx.canvas.width;
+  var height = ctx.canvas.height;
+  var intervalId;
+
+  navigator.mediaDevices.enumerateDevices().then(function (devices) {
+    console.log(devices);
+    for (var i = 0; i < devices.length; i++) {
+      var device = devices[i];
+      if (device.kind === 'videoinput') {
+        var option = document.createElement('option');
+        option.value = device.deviceId;
+        option.text = device.label || 'camera ' + (i + 1);
+        document.querySelector('select#videoSource').appendChild(option);
+      }
+    };
+  });
+
+  updateCanvas.onclick = function () {
+    var scaleCanvas = document.querySelector('select#scaleCanvas').value;
+    scale =  scaleCanvas * 0.10;
+    console.log('scale - ',scale);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, width, height);
+
+
+    var newWidth = width * scale;
+    var newHeight = height * scale;
+
+    ctx.save();
+    ctx.translate(-((newWidth - width) / 2), -((newHeight - height) / 2));
+    ctx.scale(scale, scale);
+    ctx.clearRect(0, 0, width, height);
+    // ctx.drawImage(copiedCanvas, 0, 0);
+    // ctx.restore();
+  }
+
+
+  var net;
+  async function play() {
+    net = await bodyPix.load({
+      architecture: 'MobileNetV1',
+      outputStride: 16,
+      multiplier: 0.75,
+      quantBytes: 4
+    });
+    navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: {
+        width: canvas.width, height: canvas.height,
+        deviceId: document.querySelector('select#videoSource').value
+      }
+    })
+      .then(stream => {
+        window.localStream = stream;
+        video.srcObject = stream;
+
+        video.play();
+
+
+        // canvasInterval();
+
+        canvasInterval(video);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+  function canvasInterval(vid) {
+    window.setInterval(async () => {
+      ctx.drawImage(video, 0, 0, width, height); //,video.width,video.height
+      try {
+        var imageData = ctx.getImageData(0, 0, width, height);
+        var segmentation = await net.segmentPerson(imageData, {
+          flipHorizontal: false,
+          internalResolution: 'full',
+          segmentationThreshold: 0.7,
+          backgroundColour: '#ffffff'
+        });
+
+
+        if (segmentation) {
+          var pixel = imageData.data;
+          for (var p = 0; p < pixel.length; p += 4) {
+            if (segmentation.data[p / 4] == 0) {
+              pixel[p + 3] = 0;
+            }
+          }
+          // ctx2.imageSmoothingEnabled = true;
+          ctx2.putImageData(imageData, 0, 0);
+          // ctx2.putImageData(imageData, 0, 0, 400,400);
+
+          // ctx2.putImageData(imageData, 50, 0, 0, 50, 50, 25, 25);
+        }
+
+      } catch (err) {
+        console.log(err);
+      }
+
+      // ctx.drawImage(video, 0, 0, 400, 400); //
+
+
+
+      // const length = frame.data.length;
+      // const data = frame.data;
+
+      // for (let i = 0; i < length; i += 4) {
+      //   const red = data[i + 0];
+      //   const green = data[i + 1];
+      //   const blue = data[i + 2];
+      //   if (green > 100 && red > 100 && blue < 43) {
+      //     data[i + 3] = 0;
+      //   }
+      // }
+      // ctx2.drawImage(frame, 0, 0); 
+      // video.onloadeddata = (event) => {
+      //   console.log();  
+      // };
+
+      // ctx2.putImageData(frame, 0, 0, canvas.width, canvas.height);
+
+
+    }, 1000 / 60); // 1000 /
+
+  }
+
+  // audio.onclick = function () {
+  //   localStream.getAudioTracks()[0].stop();
+  // }
+  // video.onclick = function () {
+  //   localStream.getVideoTracks()[0].stop();
+  // }
+  both.onclick = function () {
+    localStream.getTracks().forEach((track) => {
+      track.stop();
+    })
+  }
+
+
+</script>
+
+</html>

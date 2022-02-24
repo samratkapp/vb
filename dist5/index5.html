@@ -1,0 +1,90 @@
+ 
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="container">
+<video class="input_video" style="display:none"></video>
+<canvas class="output_canvas" width="620px" height="440px" onclick="state=!state;"></canvas>
+<canvas style="display:none" id="canvas" width="320px" height="240px"></canvas>
+<canvas style="display:none" id="canvas1" width="320px" height="240px"></canvas>
+<canvas style="display:none" id="canvas2" width="320px" height="240px"></canvas><br>
+</div>
+<img id="img0" src="https://cdn2.ettoday.net/images/3366/d3366096.jpg" width="320" height="240" style="display:none">
+ </body>
+</html>
+<script>
+const videoElement = document.getElementsByClassName('input_video')[0];
+const canvasElement = document.getElementsByClassName('output_canvas')[0];
+const canvasCtx = canvasElement.getContext('2d');
+const canvas = document.getElementById('canvas');
+const Ctx = canvas.getContext('2d');
+const canvas1 = document.getElementById('canvas1');
+const Ctx1 = canvas1.getContext('2d');
+const canvas2 = document.getElementById('canvas2');
+const Ctx2 = canvas2.getContext('2d');
+const operation = document.getElementById('operation');
+const img0 = document.getElementById('img0'); 
+var state = true;
+function onResults(results) {
+canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+canvasCtx.drawImage(results.segmentationMask, 0, 0,
+canvasElement.width, canvasElement.height);
+// Only overwrite missing pixels.
+if (state==false)
+canvasCtx.globalCompositeOperation = 'source-in';
+else
+canvasCtx.globalCompositeOperation = 'source-out';
+canvasCtx.drawImage(
+img0, 0, 0, canvasElement.width, canvasElement.height);
+// Only overwrite missing pixels.
+canvasCtx.globalCompositeOperation = "destination-atop";
+canvasCtx.drawImage(
+results.image, 0, 0, canvasElement.width, canvasElement.height);
+Ctx.clearRect(0, 0, canvas.width, canvas.height);
+Ctx.drawImage(results.segmentationMask, 0, 0,
+canvas.width, canvas.height);
+Ctx.globalCompositeOperation = 'source-out';
+Ctx.fillStyle = '#000000';
+Ctx.fillRect(0, 0, canvas.width, canvas.height);
+Ctx.globalCompositeOperation = 'destination-atop';
+Ctx.drawImage(
+results.image, 0, 0, canvas.width, canvas.height);
+Ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+Ctx1.drawImage(results.segmentationMask, 0, 0,
+canvas1.width, canvas1.height);
+Ctx1.globalCompositeOperation = "xor";
+Ctx1.drawImage(
+results.image, 0, 0, canvas1.width, canvas1.height);
+Ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+Ctx2.drawImage(results.segmentationMask, 0, 0,
+canvas2.width, canvas2.height);
+Ctx2.globalCompositeOperation = 'source-out';
+Ctx2.fillStyle = '#000000';
+Ctx2.fillRect(0, 0, canvas2.width, canvas2.height);
+Ctx2.globalCompositeOperation = 'source-out';
+Ctx2.drawImage(
+img0, 0, 0, canvas2.width, canvas2.height);
+}
+const selfieSegmentation = new SelfieSegmentation({locateFile: (file) => {
+return `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`;
+}});
+selfieSegmentation.setOptions({
+modelSelection: 1,
+});
+selfieSegmentation.onResults(onResults);
+const camera = new Camera(videoElement, {
+onFrame: async () => {
+await selfieSegmentation.send({image: videoElement});
+},
+width: 320,
+height: 240
+});
+camera.start();
+</script>
