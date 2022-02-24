@@ -99,11 +99,23 @@
       </div>
     </div>
   </div>
-  <script src="http://localhost:9080/dist//build/twilio-video.min.js"></script>
-  <script src="http://localhost:9080/dist//build/twilio-video-processors.js"></script>
-  <script src="http://localhost:9080/dist//build/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+
+<p id="demo"></p>
+
+<script>
+let hostname = window.location.hostname; 
+console.log(hostname);
+document.getElementById("demo").innerHTML = hostname;
+
+// http://localhost:9080
+</script>
+
+  <script src="./dist//build/twilio-video.min.js"></script>
+  <script src="./dist//build/twilio-video-processors.js"></script>
+  <script src="./dist//build/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
    
   <script src="index.js"></script>
+
  <script>
    var width=`80%`;
    var height=`80%`;
