@@ -64,19 +64,11 @@ video {
 .overlay {
   position: absolute;
   display: none;
-  /* width: 90% ;
-  height: 40%; */
-  /* top: 0;
-  left: 0;
-  right: 0; */
-  bottom: 0;
-  /* text-align: center; */
+   bottom: 0;
   background-image: url(./backgrounds/mic/2.png);
     background-position: center bottom;
     background-repeat: no-repeat;
     background-size: contain;
-
-  /* background-color: rgba(0,0,0,0.5); */
   z-index: 112;
   /* cursor: pointer; */
 }
@@ -103,6 +95,8 @@ img{border:solid 1px rgb(135, 136, 85); margin:10px;}
 }
 .columnimg {
   float: left;
-  width: 33.33%;
+
+  width: 120px;
+  height: 120px;
   padding: 5px;
 }
