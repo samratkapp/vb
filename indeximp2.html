@@ -4,8 +4,8 @@
 
 <head>
 
-  <!-- <script src="./tenserflow/tfjs@1.2"></script>
-  <script src="./tenserflow/body-pix@2.0"></script> -->
+  <script src="./tenserflow/tfjs@3.13.0"></script>
+  <script src="./tenserflow/body-pix@2.2.0"></script>
 
 
   <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.0"></script> -->
@@ -14,8 +14,11 @@
   <!-- 
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.0"></script> -->
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.13.0"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.0"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.13.0"></script> -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.0"></script> -->
+
+  <link href="./dist/build/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+
   <style>
     #canvas {
       margin: 20px;
@@ -28,7 +31,7 @@
     #c2 {
       margin: 20px;
       border: 2px solid gray;
-      width: 65%;
+      width: 85%;
       height: auto;
       background-image: url(./backgrounds/back1.jpg);
       background-repeat: no-repeat;
@@ -47,40 +50,51 @@
 <body>
 
   <body>
-    <video></video>
+    <div class="container-fluid">
+      <div class="row thin-gutters align">
+        <div class="col-sm-8"> 
+              <video></video>
 
-    <canvas id="canvas"></canvas>
-    <canvas id="c2"></canvas>
+              <canvas id="canvas"></canvas>
+              <canvas id="c2"></canvas>
 
-    <p>
-      <select id="videoSource"></select>
 
-      <button id="play" onclick="play()">
-        PLAY
-      </button>
+         </div>
+        <div class="col-sm-4 left-form">
+ 
+              <p>
+                <select id="videoSource"></select>
+                <br><br>
+                <button id="play" onclick="play()">
+                  PLAY
+                </button>
 
-      <button id="both">
-        STOP
-      </button>
+                <button id="both">
+                  STOP
+                </button>
 
-      <select id="scaleCanvas">
-        <option>1</option>
-        <option>2</option>
-        <option>3</option>
-        <option>4</option>
-        <option>5</option>
-        <option>6</option>
-        <option>7</option>
-        <option>8</option>
-        <option>9</option>
-        <option>10</option>
-      </select>
+                <select id="scaleCanvas">
+                  <option>1</option>
+                  <option>2</option>
+                  <option>3</option>
+                  <option>4</option>
+                  <option>5</option>
+                  <option>6</option>
+                  <option>7</option>
+                  <option>8</option>
+                  <option>9</option>
+                  <option>10</option>
+                </select>
 
-    </p>
+              </p> 
+        </div>
+      </div>
+
 
   </body>
 
 </body>
+<script src="./dist//build/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <script>
 
 
@@ -143,6 +157,7 @@
       audio: true,
       video: {
         width: canvas.width, height: canvas.height,
+        facingMode: true ? "user" : "environment",
         deviceId: document.querySelector('select#videoSource').value
       }
     })
@@ -160,6 +175,8 @@
       .catch((err) => {
         console.log(err);
       });
+
+
   }
 
   function canvasInterval(vid) {
@@ -183,7 +200,7 @@
             }
             // ctx2.imageSmoothingEnabled = true;
             ctx2.putImageData(imageData, 0, 0);
-            
+
           }
         })
           .catch((err) => {
@@ -198,7 +215,7 @@
       }
 
 
-    }, 100); // 1000 /
+    }, 300); // 1000 /
 
   }
 
