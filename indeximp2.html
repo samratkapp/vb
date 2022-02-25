@@ -4,12 +4,16 @@
 
 <head>
 
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.0"></script>
+  <script src="./tenserflow/tfjs@1.2"></script>
+  <script src="./tenserflow/body-pix@2.0"></script>
 
 
   <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.0"></script> -->
   <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@1.0.0"></script> -->
+
+<!-- 
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.0"></script> -->
   <style>
     #canvas {
       margin: 20px;
@@ -22,9 +26,9 @@
     #c2 {
       margin: 20px;
       border: 2px solid gray;
-      width: 550px;
-      height: 520px;
-      background-image: url(./backgrounds/back4.jpg);
+      width: 80%;
+      height: auto;
+      background-image: url(./backgrounds/back1.jpg);
       background-repeat: no-repeat;
       background-size: cover;
     }
@@ -56,9 +60,7 @@
       <button id="both">
         STOP
       </button>
-      <button id="updateCanvas">
-        updateCanvas
-      </button>
+      
       <select id="scaleCanvas">
         <option>1</option>
         <option>2</option>
@@ -79,7 +81,7 @@
 </body>
 <script>
 
-  // var imageElement = document.getElementById('image');
+
   var canvas = document.getElementById('canvas');
   var ctx = canvas.getContext('2d');
 
@@ -107,7 +109,7 @@
     };
   });
 
-  updateCanvas.onclick = function () {
+  scaleCanvas.onchange = function () {
     var scaleCanvas = document.querySelector('select#scaleCanvas').value;
     scale =  scaleCanvas * 0.10;
     console.log('scale - ',scale);
@@ -212,16 +214,11 @@
       // ctx2.putImageData(frame, 0, 0, canvas.width, canvas.height);
 
 
-    }, 1000 / 60); // 1000 /
+    }, 200); // 1000 /
 
   }
 
-  // audio.onclick = function () {
-  //   localStream.getAudioTracks()[0].stop();
-  // }
-  // video.onclick = function () {
-  //   localStream.getVideoTracks()[0].stop();
-  // }
+  
   both.onclick = function () {
     localStream.getTracks().forEach((track) => {
       track.stop();
