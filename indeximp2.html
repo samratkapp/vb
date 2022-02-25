@@ -4,16 +4,18 @@
 
 <head>
 
-  <script src="./tenserflow/tfjs@1.2"></script>
-  <script src="./tenserflow/body-pix@2.0"></script>
+  <!-- <script src="./tenserflow/tfjs@1.2"></script>
+  <script src="./tenserflow/body-pix@2.0"></script> -->
 
 
   <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.0"></script> -->
   <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@1.0.0"></script> -->
 
-<!-- 
+  <!-- 
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.0"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.13.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.0"></script>
   <style>
     #canvas {
       margin: 20px;
@@ -26,7 +28,7 @@
     #c2 {
       margin: 20px;
       border: 2px solid gray;
-      width: 80%;
+      width: 65%;
       height: auto;
       background-image: url(./backgrounds/back1.jpg);
       background-repeat: no-repeat;
@@ -60,7 +62,7 @@
       <button id="both">
         STOP
       </button>
-      
+
       <select id="scaleCanvas">
         <option>1</option>
         <option>2</option>
@@ -90,7 +92,7 @@
 
   var video = document.querySelector('video');
 
-  var scale = 0.45;
+  var scale = 1;
 
   var width = ctx.canvas.width;
   var height = ctx.canvas.height;
@@ -111,8 +113,8 @@
 
   scaleCanvas.onchange = function () {
     var scaleCanvas = document.querySelector('select#scaleCanvas').value;
-    scale =  scaleCanvas * 0.10;
-    console.log('scale - ',scale);
+    scale = scaleCanvas * 0.10;
+    console.log('scale - ', scale);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, width, height);
 
@@ -135,7 +137,7 @@
       architecture: 'MobileNetV1',
       outputStride: 16,
       multiplier: 0.75,
-      quantBytes: 4
+      quantBytes: 2
     });
     navigator.mediaDevices.getUserMedia({
       audio: true,
@@ -165,60 +167,42 @@
       ctx.drawImage(video, 0, 0, width, height); //,video.width,video.height
       try {
         var imageData = ctx.getImageData(0, 0, width, height);
-        var segmentation = await net.segmentPerson(imageData, {
+        // var segmentation = await
+        net.segmentPerson(imageData, {
           flipHorizontal: false,
           internalResolution: 'full',
-          segmentationThreshold: 0.7,
-          backgroundColour: '#ffffff'
-        });
-
-
-        if (segmentation) {
-          var pixel = imageData.data;
-          for (var p = 0; p < pixel.length; p += 4) {
-            if (segmentation.data[p / 4] == 0) {
-              pixel[p + 3] = 0;
+          segmentationThreshold: 0.5,
+          // backgroundColour: '#ffffff'
+        }).then((segmentation) => {
+          if (segmentation) {
+            var pixel = imageData.data;
+            for (var p = 0; p < pixel.length; p += 4) {
+              if (segmentation.data[p / 4] == 0) {
+                pixel[p + 3] = 0;
+              }
             }
+            // ctx2.imageSmoothingEnabled = true;
+            ctx2.putImageData(imageData, 0, 0);
+            
           }
-          // ctx2.imageSmoothingEnabled = true;
-          ctx2.putImageData(imageData, 0, 0);
-          // ctx2.putImageData(imageData, 0, 0, 400,400);
+        })
+          .catch((err) => {
+            console.log(err);
+          });
 
-          // ctx2.putImageData(imageData, 50, 0, 0, 50, 50, 25, 25);
-        }
+
+
 
       } catch (err) {
         console.log(err);
       }
 
-      // ctx.drawImage(video, 0, 0, 400, 400); //
 
-
-
-      // const length = frame.data.length;
-      // const data = frame.data;
-
-      // for (let i = 0; i < length; i += 4) {
-      //   const red = data[i + 0];
-      //   const green = data[i + 1];
-      //   const blue = data[i + 2];
-      //   if (green > 100 && red > 100 && blue < 43) {
-      //     data[i + 3] = 0;
-      //   }
-      // }
-      // ctx2.drawImage(frame, 0, 0); 
-      // video.onloadeddata = (event) => {
-      //   console.log();  
-      // };
-
-      // ctx2.putImageData(frame, 0, 0, canvas.width, canvas.height);
-
-
-    }, 200); // 1000 /
+    }, 100); // 1000 /
 
   }
 
-  
+
   both.onclick = function () {
     localStream.getTracks().forEach((track) => {
       track.stop();
