@@ -85,7 +85,8 @@
                   <option>9</option>
                   <option>10</option>
                 </select>
-
+                <button id="btnrecord" class="btn btn-primary btn-sm">Start Recording </button>
+                <button id="btnrecordstop" class="btn btn-primary btn-sm">Stop Recording </button>
               </p> 
         </div>
       </div>
@@ -94,6 +95,7 @@
   </body>
 
 </body>
+<script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
 <script src="./dist//build/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <script>
 
@@ -181,7 +183,7 @@
 
   function canvasInterval(vid) {
     window.setInterval(async () => {
-      ctx.drawImage(video, 0, 0, width, height); //,video.width,video.height
+      ctx.drawImage(video, video.videoWidth*0.2, video.videoHeight*0.2, video.videoWidth*0.5, video.videoHeight*0.5); //,video.width,video.height
       try {
         var imageData = ctx.getImageData(0, 0, width, height);
         // var segmentation = await
@@ -215,7 +217,7 @@
       }
 
 
-    }, 300); // 1000 /
+    }, 0); // 1000 /
 
   }
 
@@ -225,6 +227,29 @@
       track.stop();
     })
   }
+
+
+  ///
+  /****** Recording ******/
+let recorder;
+btnrecord.onclick = async function () {
+    let stream = video.srcObject;
+    // console.log(videoTrack); 
+    console.log(stream);
+
+    recorder = RecordRTC(stream, {
+        type: 'video'
+    });
+    recorder.startRecording();
+
+}
+
+btnrecordstop.onclick = function () {
+    recorder.stopRecording(function () {
+        let blob = recorder.getBlob();
+        invokeSaveAsDialog(blob);
+    });
+}
 
 
 </script>

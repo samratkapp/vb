@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+<!-- 
+  <script src="./tenserflow/tfjs@3.13.0"></script>
+  <script src="./tenserflow/body-pix@2.2.0"></script> -->
+
+  <script src="./selfie2/tfjs-backend-webgl.js"></script>
+
+  <script src="./selfie2/tfjs-converter.js"></script>
+  <script src="./selfie2/body-segmentation.js"></script>
+
+
+  <script src="./selfie2/selfie_segmentation.js"></script>
+
+  <style>
+    video {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <video class="video"></video>
+    <canvas class="canvas" width="1280px" height="720px"></canvas>
+  </div>
+</body>
+
+</html>
+<script>
+  async function init() {
+    const model = await bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation; // or 'BodyPix'
+
+    const segmenterConfig = {
+      runtime: 'mediapipe', // or 'tfjs'
+      modelType: 'general' // or 'landscape'
+    };
+
+    var segmenter = await bodySegmentation.createSegmenter(model, segmenterConfig);
+    const video = document.getElementById('video');
+    const people = await segmenter.segmentPeople(video);
+    console.log(people);
+    // const foregroundColor = { r: 0, g: 0, b: 0, a: 0 };
+    // const backgroundColor = { r: 0, g: 0, b: 0, a: 255 };
+    // const drawContour = true;
+    // const foregroundThreshold = 0.6;
+
+    // const backgroundDarkeningMask = await bodySegmentation.toBinaryMask(people, foregroundColor, backgroundColor, drawContour, foregroundThreshold);
+
+    // const opacity = 0.7;
+    // const maskBlurAmount = 3; // Number of pixels to blur by.
+    // const canvas = document.getElementById('canvas');
+
+    // const people = await bodySegmentation.drawMask(canvas, video, backgroundDarkeningMask, opacity, maskBlurAmount);
+
+  }
+
+  init();
+</script>
+<script type="module">
+  // const videoElement = document.getElementsByClassName('input_video')[0];
+  // const canvasElement = document.getElementsByClassName('output_canvas')[0];
+  // const canvasCtx = canvasElement.getContext('2d');
+
+  // function onResults(results) {
+  //   canvasCtx.save();
+  //   canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+  //   canvasCtx.drawImage(results.segmentationMask, 0, 0,
+  //                       canvasElement.width, canvasElement.height);
+
+  //   // Only overwrite existing pixels.
+  //   canvasCtx.globalCompositeOperation = 'source-in';
+  //   canvasCtx.fillStyle = '#00FF00';
+  //   canvasCtx.fillRect(0, 0, canvasElement.width, canvasElement.height);
+
+  //   // Only overwrite missing pixels.
+  //   canvasCtx.globalCompositeOperation = 'destination-atop';
+  //   canvasCtx.drawImage(
+  //       results.image, 0, 0, canvasElement.width, canvasElement.height);
+
+  //   canvasCtx.restore();
+  // }
+
+  // const selfieSegmentation = new SelfieSegmentation({locateFile: (file) => {
+  //   return  `./selfief/selfie_segmentation/${file}`;
+  //   // return `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`;
+  // }});
+  // selfieSegmentation.setOptions({
+  //   modelSelection: 1,
+  // });
+  // selfieSegmentation.onResults(onResults);
+
+  // const camera = new Camera(videoElement, {
+  //   onFrame: async () => {
+  //     await selfieSegmentation.send({image: videoElement});
+  //   },
+  //   width: 1280,
+  //   height: 720
+  // });
+  // camera.start();
+</script>

@@ -70,8 +70,8 @@ function playvid() {
 
   videoTrack;
   Video.createLocalVideoTrack({
-    width: 1280,
-    height: 720,
+    width: 400,
+    height: 200,
     frameRate: 24,
     deviceId: document.querySelector('select#videoSource').value
   }).then((track) => {
@@ -83,9 +83,9 @@ function playvid() {
 
   });
 
-  setInterval(() => { 
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  }, 1000 / 30);
+  // setInterval(() => { 
+  //   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  // }, 1000 / 30);
 
 
 }
